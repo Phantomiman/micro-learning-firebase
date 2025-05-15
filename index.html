@@ -1,94 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firebase Firestore Security Guide</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .card-hover:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      transition: transform 0.3s ease-in-out;
-    }
-    @media (max-width: 640px) {
-      .card-hover:hover {
-        transform: none;
-        box-shadow: none;
-      }
-    }
-    .code-block {
-      font-family: 'Courier New', Courier, monospace;
-      background-color: #2d3748;
-      color: #f7fafc;
-      border-radius: 0.375rem;
-      padding: 1rem;
-      overflow-x: auto;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Firestore Security Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .code-block {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2d3748;
+            color: #f7fafc;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Mobile menu styles */
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .mobile-menu.open {
+            max-height: 500px;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .hero-buttons a {
+                width: 100%;
+                text-align: center;
+            }
+            .tab-buttons {
+                overflow-x: auto;
+                white-space: nowrap;
+                display: flex;
+                padding-bottom: 0.5rem;
+            }
+            .tab-buttons::-webkit-scrollbar {
+                display: none;
+            }
+            .tab-btn {
+                flex-shrink: 0;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
-  <!-- Header -->
-  <header class="gradient-bg text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Firebase Firestore Security</h1>
-      <p class="text-lg sm:text-xl md:text-2xl mb-8">Understanding the database and its potential vulnerabilities</p>
-      <div class="flex justify-center space-x-4 flex-wrap">
-        <a href="#what-is" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">Learn More</a>
-        <a href="#vulnerabilities" class="border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-indigo-600 transition">Security Flaws</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- What is Firestore Section -->
-  <section id="what-is" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row items-center">
-        <div class="md:w-1/2 mb-10 md:mb-0">
-          <img src="https://firebase.google.com/static/images/brand-logos/firebase-logo.png" alt="Firebase Logo" class="w-48 sm:w-64 md:w-72 lg:w-80 mx-auto" />
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mt-8 mb-4">What is Firebase Firestore?</h2>
-          <p class="text-gray-600 mb-6">
-            Firebase Firestore is a flexible, scalable NoSQL cloud database from Google to store and sync data for client- and server-side development. It keeps your data in sync across client apps through real-time listeners and offers offline support for mobile and web.
-          </p>
-          <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
-            <h3 class="font-bold text-blue-800 mb-2">Key Features:</h3>
-            <ul class="list-disc pl-5 text-blue-700 space-y-2">
-              <li>Real-time data synchronization</li>
-              <li>Offline persistence</li>
-              <li>Scalable infrastructure</li>
-              <li>Expressive querying</li>
-              <li>Multi-region support</li>
-            </ul>
-          </div>
+    <!-- Mobile Header/Navigation -->
+    <div class="md:hidden bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-indigo-600">Firebase Security</div>
+            <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </div>
-        <div class="md:w-1/2 md:pl-12">
-          <div class="bg-gray-800 rounded-lg overflow-hidden">
-            <div class="bg-gray-700 px-4 py-3 flex items-center">
-              <div class="flex space-x-2">
-                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-              </div>
-              <div class="ml-4 text-gray-300 text-sm">firestore-rules.js</div>
+        <div id="mobile-menu" class="mobile-menu bg-white shadow-md">
+            <div class="px-4 py-2 flex flex-col space-y-2">
+                <a href="#what-is" class="px-3 py-2 rounded-md text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">What is Firestore</a>
+                <a href="#vulnerabilities" class="px-3 py-2 rounded-md text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Security Flaws</a>
+                <a href="#penetration" class="px-3 py-2 rounded-md text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Penetration Testing</a>
+                <a href="#best-practices" class="px-3 py-2 rounded-md text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Best Practices</a>
             </div>
-            <div class="p-4 code-block text-sm">
-<pre><code>
+        </div>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:block bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-xl font-bold text-indigo-600">Firebase Security</div>
+                <div class="flex space-x-8">
+                    <a href="#what-is" class="text-gray-700 hover:text-indigo-600 transition">What is Firestore</a>
+                    <a href="#vulnerabilities" class="text-gray-700 hover:text-indigo-600 transition">Security Flaws</a>
+                    <a href="#penetration" class="text-gray-700 hover:text-indigo-600 transition">Penetration Testing</a>
+                    <a href="#best-practices" class="text-gray-700 hover:text-indigo-600 transition">Best Practices</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white pt-16 md:pt-24 pb-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Firebase Firestore Security</h1>
+            <p class="text-lg md:text-2xl mb-8 max-w-3xl mx-auto">Understanding the database and its potential vulnerabilities</p>
+            <div class="hero-buttons flex justify-center space-x-4">
+                <a href="#what-is" class="bg-white text-indigo-600 px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold hover:bg-gray-100 transition">Learn More</a>
+                <a href="#vulnerabilities" class="border-2 border-white text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold hover:bg-white hover:text-indigo-600 transition">Security Flaws</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- What is Firestore Section -->
+    <section id="what-is" class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <img src="https://firebase.google.com/static/images/brand-logos/firebase-logo.png" alt="Firebase Logo" class="w-48 md:w-64 mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-6 md:mt-8 mb-3 md:mb-4">What is Firebase Firestore?</h2>
+                    <p class="text-gray-600 mb-4 md:mb-6">
+                        Firebase Firestore is a flexible, scalable NoSQL cloud database from Google to store and sync data for client- and server-side development. It keeps your data in sync across client apps through real-time listeners and offers offline support for mobile and web.
+                    </p>
+                    <div class="bg-blue-50 p-4 md:p-6 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="font-bold text-blue-800 mb-2">Key Features:</h3>
+                        <ul class="list-disc pl-5 text-blue-700 space-y-1 md:space-y-2">
+                            <li>Real-time data synchronization</li>
+                            <li>Offline persistence</li>
+                            <li>Scalable infrastructure</li>
+                            <li>Expressive querying</li>
+                            <li>Multi-region support</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 lg:pl-8 mt-8 lg:mt-0">
+                    <div class="bg-gray-800 rounded-lg overflow-hidden">
+                        <div class="bg-gray-700 px-4 py-3 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="ml-4 text-gray-300 text-sm">firestore-rules.js</div>
+                        </div>
+                        <div class="p-4 code-block">
+                            <pre><code class="text-xs md:text-sm">
 // Example Firestore Security Rules
 rules_version = '2';
 service cloud.firestore {
@@ -98,85 +159,372 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if true;
     }
-
+    
     // Better approach: Authenticated users can read/write their own data
     match /users/{userId} {
       allow read, write: if request.auth != null && 
                           request.auth.uid == userId;
     }
-
+    
     // Public read access, but only admin can write
     match /posts/{postId} {
       allow read: if true;
       allow write: if request.auth.token.admin == true;
     }
   }
-}
-</code></pre>
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Vulnerabilities, PT Tips, Best Practices -->
-  <!-- (Unchanged core, already mobile-compatible, but now wrapped in max-w-7xl and px-4) -->
-  <!-- Just continue the rest of your original HTML from here without changes until the footer... -->
+    <!-- Security Flaws Section -->
+    <section id="vulnerabilities" class="py-12 md:py-16 bg-gray-100">
+        <div class="container mx-auto px-4 md:px-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">Common Firestore Security Vulnerabilities</h2>
+            
+            <!-- Tabs Navigation -->
+            <div class="tab-buttons flex mb-6 md:mb-8">
+                <button onclick="openTab(event, 'tab1')" class="tab-btn px-4 md:px-6 py-2 md:py-3 bg-white text-indigo-600 font-medium rounded-t-lg border-b-2 border-indigo-600 focus:outline-none">
+                    <i class="fas fa-lock-open mr-2"></i>Open Rules
+                </button>
+                <button onclick="openTab(event, 'tab2')" class="tab-btn px-4 md:px-6 py-2 md:py-3 bg-white text-gray-600 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 focus:outline-none">
+                    <i class="fas fa-user-shield mr-2"></i>Auth Bypass
+                </button>
+                <button onclick="openTab(event, 'tab3')" class="tab-btn px-4 md:px-6 py-2 md:py-3 bg-white text-gray-600 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 focus:outline-none">
+                    <i class="fas fa-key mr-2"></i>API Key Exposure
+                </button>
+                <button onclick="openTab(event, 'tab4')" class="tab-btn px-4 md:px-6 py-2 md:py-3 bg-white text-gray-600 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 focus:outline-none">
+                    <i class="fas fa-code mr-2"></i>Injection
+                </button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="tab1" class="tab-content active bg-white p-6 md:p-8 rounded-b-lg rounded-tr-lg shadow-md">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800 mb-3 md:mb-4">1. Overly Permissive Security Rules</h3>
+                <p class="text-gray-600 mb-4 md:mb-6">
+                    The most common security flaw is having rules that are too permissive, allowing anyone to read or write to your database. This often happens during development when rules are left open for testing purposes and then forgotten.
+                </p>
+                <div class="bg-red-50 p-4 md:p-6 rounded-lg border-l-4 border-red-500 mb-4 md:mb-6">
+                    <h4 class="font-bold text-red-800 mb-2">Dangerous Example:</h4>
+                    <div class="code-block">
+                        <code>allow read, write: if true;</code>
+                    </div>
+                    <p class="text-red-700 mt-2">This rule allows complete public access to your entire database!</p>
+                </div>
+                <div class="bg-green-50 p-4 md:p-6 rounded-lg border-l-4 border-green-500">
+                    <h4 class="font-bold text-green-800 mb-2">Secure Alternative:</h4>
+                    <div class="code-block">
+                        <code>allow read, write: if request.auth != null;</code>
+                    </div>
+                    <p class="text-green-700 mt-2">At minimum, require authentication for all operations.</p>
+                </div>
+            </div>
+            
+            <div id="tab2" class="tab-content bg-white p-6 md:p-8 rounded-b-lg rounded-tr-lg shadow-md">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800 mb-3 md:mb-4">2. Authentication Bypass Vulnerabilities</h3>
+                <p class="text-gray-600 mb-4 md:mb-6">
+                    Even when authentication is required, improper rule design can allow users to access data that doesn't belong to them. This typically happens when user ownership isn't properly verified.
+                </p>
+                <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                    <div class="bg-red-50 p-4 md:p-6 rounded-lg border-l-4 border-red-500 flex-1">
+                        <h4 class="font-bold text-red-800 mb-2">Vulnerable Code:</h4>
+                        <div class="code-block">
+                            <code>allow read, write: if request.auth != null;</code>
+                        </div>
+                        <p class="text-red-700 mt-2">Any authenticated user can access all data!</p>
+                    </div>
+                    <div class="bg-green-50 p-4 md:p-6 rounded-lg border-l-4 border-green-500 flex-1">
+                        <h4 class="font-bold text-green-800 mb-2">Secure Solution:</h4>
+                        <div class="code-block">
+                            <code>allow read, write: if request.auth.uid == resource.data.ownerId;</code>
+                        </div>
+                        <p class="text-green-700 mt-2">Verify the user owns the data they're trying to access.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab3" class="tab-content bg-white p-6 md:p-8 rounded-b-lg rounded-tr-lg shadow-md">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800 mb-3 md:mb-4">3. API Key Exposure</h3>
+                <p class="text-gray-600 mb-4 md:mb-6">
+                    Firebase configuration including API keys is often exposed in client-side code. While these keys are meant to be public, they can be abused if combined with weak security rules.
+                </p>
+                <div class="bg-yellow-50 p-4 md:p-6 rounded-lg border-l-4 border-yellow-500 mb-4 md:mb-6">
+                    <h4 class="font-bold text-yellow-800 mb-2">Common Exposure:</h4>
+                    <div class="code-block">
+                        <code>// In your web app's JavaScript
+const firebaseConfig = {
+  apiKey: "AIzaSyABCD1234...",
+  authDomain: "your-app.firebaseapp.com",
+  projectId: "your-app",
+  storageBucket: "your-app.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcd1234"
+};</code>
+                    </div>
+                </div>
+                <div class="bg-blue-50 p-4 md:p-6 rounded-lg border-l-4 border-blue-500">
+                    <h4 class="font-bold text-blue-800 mb-2">Protection Measures:</h4>
+                    <ul class="list-disc pl-5 text-blue-700 space-y-1 md:space-y-2">
+                        <li>Always implement proper security rules (never rely on "security through obscurity")</li>
+                        <li>Restrict API keys to your domain in Google Cloud Console</li>
+                        <li>Consider using Firebase App Check for additional protection</li>
+                        <li>Rotate API keys if they're compromised</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="tab4" class="tab-content bg-white p-6 md:p-8 rounded-b-lg rounded-tr-lg shadow-md">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800 mb-3 md:mb-4">4. Query Injection Vulnerabilities</h3>
+                <p class="text-gray-600 mb-4 md:mb-6">
+                    Firestore queries constructed from user input without proper validation can lead to unauthorized data access, similar to SQL injection.
+                </p>
+                <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                    <div class="bg-red-50 p-4 md:p-6 rounded-lg border-l-4 border-red-500 flex-1">
+                        <h4 class="font-bold text-red-800 mb-2">Risky Implementation:</h4>
+                        <div class="code-block">
+                            <code>// Client-side JavaScript - Dangerous!
+const query = db.collection('users')
+  .where('email', '==', userInputEmail)
+  .get();</code>
+                        </div>
+                        <p class="text-red-700 mt-2">An attacker could manipulate queries to access unauthorized data.</p>
+                    </div>
+                    <div class="bg-green-50 p-4 md:p-6 rounded-lg border-l-4 border-green-500 flex-1">
+                        <h4 class="font-bold text-green-800 mb-2">Secure Approach:</h4>
+                        <div class="code-block">
+                            <code>// Server-side or with proper security rules
+match /users/{userId} {
+  allow read: if request.auth.uid == userId;
+}
 
-  <!-- Footer -->
-  <footer class="gradient-bg text-white py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-6 md:mb-0">
-          <h3 class="text-2xl font-bold mb-2">Firebase Firestore Security</h3>
-          <p class="text-indigo-100">A comprehensive guide to securing your Firestore database</p>
+// Client-side
+const query = db.collection('users')
+  .doc(auth.currentUser.uid)
+  .get();</code>
+                        </div>
+                        <p class="text-green-700 mt-2">Always validate and limit query capabilities in security rules.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="flex space-x-6">
-          <a href="#" class="text-white hover:text-indigo-200 transition">
-            <i class="fab fa-github text-2xl"></i>
-          </a>
-          <a href="#" class="text-white hover:text-indigo-200 transition">
-            <i class="fab fa-twitter text-2xl"></i>
-          </a>
-          <a href="#" class="text-white hover:text-indigo-200 transition">
-            <i class="fab fa-linkedin text-2xl"></i>
-          </a>
+    </section>
+
+    <!-- Penetration Testing Tips -->
+    <section id="penetration" class="py-12 md:py-16 bg-indigo-50">
+        <div class="container mx-auto px-4 md:px-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">Firestore Penetration Testing Checklist</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">1. Security Rules Audit</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Manually review all Firestore security rules for overly permissive access. Check for "if true" conditions and ensure proper authentication and authorization checks.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">2. Authentication Testing</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Attempt to access collections/documents with different user roles (admin, regular user, unauthenticated) to test for privilege escalation.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">3. Client-Side Inspection</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Examine client-side JavaScript for exposed API keys and Firestore queries that might be manipulated. Use browser dev tools to monitor network requests.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">4. Data Enumeration</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Try to guess document IDs or collection names. Firestore doesn't hide the existence of documents, so predictable IDs can lead to data leaks.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">5. Rate Limiting Tests</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Firestore has built-in quotas, but test if your application properly handles rate limiting and implements additional protections against abuse.
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-md card-hover transition duration-300">
+                    <div class="text-indigo-600 text-3xl md:text-4xl mb-3 md:mb-4">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">6. Version Control Checks</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Review git history for previous versions of security rules that might have been more permissive. Developers sometimes roll back to insecure versions.
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="border-t border-indigo-400 mt-8 pt-8 text-center text-indigo-100">
-        <p>&copy; 2025 Firebase Security Guide. All rights reserved.</p>
-        <p class="mt-2">This is for educational purposes only.</p>
-      </div>
-    </div>
-  </footer>
+    </section>
 
-  <script>
-    function openTab(evt, tabName) {
-      const tabContents = document.getElementsByClassName("tab-content");
-      for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove("active");
-      }
+    <!-- Best Practices -->
+    <section id="best-practices" class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 md:px-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">Firestore Security Best Practices</h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-6 md:mb-8 p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">1. Principle of Least Privilege</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Always grant the minimum permissions needed. Start with "deny all" and gradually add specific permissions. Separate read and write permissions where possible.
+                    </p>
+                </div>
+                
+                <div class="mb-6 md:mb-8 p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">2. Validate All Inputs</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Both in security rules and client-side code, validate that data matches expected formats and that users only access data they own.
+                    </p>
+                </div>
+                
+                <div class="mb-6 md:mb-8 p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">3. Use Custom Claims for Roles</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Implement role-based access control using Firebase Auth custom claims rather than storing roles in the database where they can be manipulated.
+                    </p>
+                </div>
+                
+                <div class="mb-6 md:mb-8 p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">4. Test Rules with the Emulator</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Use the Firebase Local Emulator Suite to thoroughly test security rules before deploying to production.
+                    </p>
+                </div>
+                
+                <div class="mb-6 md:mb-8 p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">5. Monitor and Audit</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Enable Firebase Audit Logging and set up alerts for suspicious activity. Regularly review access patterns.
+                    </p>
+                </div>
+                
+                <div class="p-4 md:p-6 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">6. Implement App Check</h3>
+                    <p class="text-gray-600 text-sm md:text-base">
+                        Use Firebase App Check to help protect your resources from abuse by verifying that incoming traffic is coming from your app.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      const tabButtons = document.getElementsByClassName("tab-btn");
-      for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove("text-indigo-600", "border-indigo-600");
-        tabButtons[i].classList.add("text-gray-600", "border-transparent");
-      }
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8 md:py-12">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0 text-center md:text-left">
+                    <h3 class="text-xl md:text-2xl font-bold mb-1 md:mb-2">Firebase Firestore Security</h3>
+                    <p class="text-indigo-100 text-sm md:text-base">A comprehensive guide to securing your Firestore database</p>
+                </div>
+                <div class="flex space-x-4 md:space-x-6">
+                    <a href="#" class="text-white hover:text-indigo-200 transition" aria-label="GitHub">
+                        <i class="fab fa-github text-xl md:text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-indigo-200 transition" aria-label="Twitter">
+                        <i class="fab fa-twitter text-xl md:text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-indigo-200 transition" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin text-xl md:text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-indigo-400 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-indigo-100 text-sm md:text-base">
+                <p>&copy; 2025 Firebase Security Guide. All rights reserved.</p>
+                <p class="mt-1 md:mt-2">This is for educational purposes only.</p>
+            </div>
+        </div>
+    </footer>
 
-      document.getElementById(tabName).classList.add("active");
-      evt.currentTarget.classList.add("text-indigo-600", "border-indigo-600");
-      evt.currentTarget.classList.remove("text-gray-600", "border-transparent");
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
         });
-      });
-    });
-  </script>
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+            });
+        });
+
+        // Tab functionality
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("text-indigo-600", "border-indigo-600");
+                tabButtons[i].classList.add("text-gray-600", "border-transparent");
+            }
+            
+            // Show the current tab and add active class to the button
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("text-indigo-600", "border-indigo-600");
+            evt.currentTarget.classList.remove("text-gray-600", "border-transparent");
+            
+            // Scroll the tab into view on mobile
+            if (window.innerWidth < 768) {
+                evt.currentTarget.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update URL without jumping
+                    if (history.pushState) {
+                        history.pushState(null, null, this.getAttribute('href'));
+                    } else {
+                        window.location.hash = this.getAttribute('href');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
